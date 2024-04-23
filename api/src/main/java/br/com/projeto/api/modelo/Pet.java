@@ -19,7 +19,7 @@ public class Pet {
     private String raca;
     private String especie;
     private String nomeDono;
-    private String telefoneDono;
+    private Number telefoneDono;
 
     
     
@@ -68,13 +68,12 @@ public class Pet {
     }
     
     
-    public String getTelefoneDono() {
+    public Number getTelefoneDono() {
         return telefoneDono;
     }
 
-    public void setTelefoneDono(String telefoneDono) {
+    public void setTelefoneDono(Number telefoneDono) {
         this.telefoneDono = telefoneDono;
     }
-    
     
 }
