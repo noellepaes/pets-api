@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import br.com.projeto.api.modelo.Pet;
 import br.com.projeto.api.repositorio.RepositorioPet;
@@ -30,6 +31,12 @@ public class Controle {
     @GetMapping
     public List<Pet> listaPets(){
         return (List<Pet>) repositorioPet.findAll();
+    }
+
+    @GetMapping("/{petId}")
+    public Pet listaPets(@PathVariable Long petId){
+        return repositorioPet.findById(petId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID não existe"));
     }
 
     @PostMapping
