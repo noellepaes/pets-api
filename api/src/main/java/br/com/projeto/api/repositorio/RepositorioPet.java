@@ -5,4 +5,5 @@ import br.com.projeto.api.modelo.Pet;
 
 public interface RepositorioPet extends CrudRepository <Pet, Long> {
     
+    Pet findByCodigo(long codigo);
 }
