@@ -10,14 +10,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import br.com.projeto.api.dto.PetDto;
 import br.com.projeto.api.modelo.Pet;
 import br.com.projeto.api.repositorio.RepositorioPet;
+import jakarta.validation.Valid;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,14 +30,29 @@ public class Controle {
     @Autowired
     private RepositorioPet repositorioPet;
 
+    // @GetMapping
+    // public List<PetDto> listaPets(){
+    //   List <Pet> pet = repositorioPet.findAll();
+    //   return PetDto.convert(pet);
+    // }
+
     @GetMapping
-    public List<Pet> listaPets(){
-        return (List<Pet>) repositorioPet.findAll();
+    public List<PetDto> listaPets(){
+    Iterable<Pet> petsIterable = repositorioPet.findAll();
+    List<Pet> petsList = new ArrayList<>();
+    petsIterable.forEach(petsList::add);
+    return PetDto.convert(petsList);
+}
+
+    @GetMapping("/{petId}")
+    public Pet listaPets(@PathVariable Long petId){
+        return repositorioPet.findById(petId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID não existe"));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Pet add(@RequestBody Pet pet){
+    public Pet add(@Valid @RequestBody Pet pet){
         return repositorioPet.save(pet);
     }
     
