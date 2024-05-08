@@ -4,16 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import br.com.projeto.api.modelo.Pet;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.hibernate.validator.constraints.Length;
 
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PetDto {
-    
+ 
     private Long codigo;
+
     private String nome;
     private String apelido;
     private String raca;
@@ -36,3 +42,5 @@ public class PetDto {
     }
     
 }
+
+

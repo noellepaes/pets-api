@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.projeto.api.dto.PetDto;
 import br.com.projeto.api.modelo.Pet;
 import br.com.projeto.api.repositorio.RepositorioPet;
+import jakarta.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class Controle {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Pet add(@RequestBody Pet pet){
+    public Pet add(@Valid @RequestBody Pet pet){
         return repositorioPet.save(pet);
     }
     
