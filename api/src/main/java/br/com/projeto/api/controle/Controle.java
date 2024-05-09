@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import br.com.projeto.api.dto.PetDto;
 import br.com.projeto.api.modelo.Pet;
@@ -22,6 +21,7 @@ import jakarta.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/pet")
@@ -37,13 +37,18 @@ public class Controle {
     List<Pet> petsList = new ArrayList<>();
     petsIterable.forEach(petsList::add);
     return PetDto.convert(petsList);
-}
+    }
 
     @GetMapping("/{petId}")
-    public Pet listaPets(@PathVariable Long petId){
-        return repositorioPet.findById(petId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID não existe"));
+    public ResponseEntity<PetDto> buscarPorId(@PathVariable Long petId){
+    Optional<Pet> pet = repositorioPet.findById(petId);
+        if (pet.isPresent()){
+            return ResponseEntity.ok(new PetDto(pet.get()));
+        }
+        return ResponseEntity.notFound().build();
     }
+
+   
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
