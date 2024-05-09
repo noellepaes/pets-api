@@ -30,11 +30,6 @@ public class Controle {
     @Autowired
     private RepositorioPet repositorioPet;
 
-    // @GetMapping
-    // public List<PetDto> listaPets(){
-    //   List <Pet> pet = repositorioPet.findAll();
-    //   return PetDto.convert(pet);
-    // }
 
     @GetMapping
     public List<PetDto> listaPets(){
@@ -59,20 +54,14 @@ public class Controle {
     @PutMapping("/{petId}")
     public ResponseEntity<Pet> update(@PathVariable Long petId, @RequestBody Pet pet){
 
-        // if(!repositorioPet.existsById(petId)){
-        //     return ResponseEntity.notFound().build();
-        // }
-
-        // pet.setId(petId);
-        // pet = repositorioPet.save(pet);
-        // return ResponseEntity.ok(pet);
+      
 
         if(!repositorioPet.existsById(petId)){
             return ResponseEntity.notFound().build();
         }
     
         Pet existingPet = repositorioPet.findById(petId).get();
-        existingPet.setNome(pet.getNome()); // Supondo que você tenha métodos de setter para cada campo do Pet
+        existingPet.setNome(pet.getNome()); 
         existingPet.setApelido(pet.getApelido());
         existingPet.setRaca(pet.getRaca());
         existingPet.setEspecie(pet.getEspecie());
@@ -83,12 +72,6 @@ public class Controle {
         Pet updatedPet = repositorioPet.save(existingPet);
         return ResponseEntity.ok(updatedPet);
     }
-
-    
-    // @PutMapping
-    // public Pet editar(@RequestBody Pet pet){
-    //     return repositorioPet.save(pet);
-    // }
 
 
     @DeleteMapping("/{petId}")

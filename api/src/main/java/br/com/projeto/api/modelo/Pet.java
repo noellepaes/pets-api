@@ -38,12 +38,10 @@ public class Pet {
     @Column
     private String especie;
     
-    @Column
-    
-    @NotNull @NotEmpty @Length(max = 255)
+    @Column @NotNull @NotEmpty @Length(max = 255)
     private String nomeDono;
     
-    
+    @NotNull
     private Long telefoneDono;
       
     
