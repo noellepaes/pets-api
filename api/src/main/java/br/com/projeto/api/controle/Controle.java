@@ -1,6 +1,8 @@
 package br.com.projeto.api.controle;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,10 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import br.com.projeto.api.dto.PetDto;
 import br.com.projeto.api.modelo.Pet;
@@ -22,6 +23,12 @@ import jakarta.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
+
 
 @RestController
 @RequestMapping("/pet")
@@ -30,25 +37,42 @@ public class Controle {
     @Autowired
     private RepositorioPet repositorioPet;
 
+
     // @GetMapping
     // public List<PetDto> listaPets(){
-    //   List <Pet> pet = repositorioPet.findAll();
-    //   return PetDto.convert(pet);
+    // Iterable<Pet> petsIterable = repositorioPet.findAll();
+    // List<Pet> petsList = new ArrayList<>();
+    // petsIterable.forEach(petsList::add);
+    // return PetDto.convert(petsList);
     // }
-
     @GetMapping
-    public List<PetDto> listaPets(){
-    Iterable<Pet> petsIterable = repositorioPet.findAll();
-    List<Pet> petsList = new ArrayList<>();
-    petsIterable.forEach(petsList::add);
-    return PetDto.convert(petsList);
-}
+    public Page<PetDto> listaPets(@RequestParam(required = false) String pet,
+                                  @RequestParam int pagina, 
+                                  @RequestParam int qtd){
 
-    @GetMapping("/{petId}")
-    public Pet listaPets(@PathVariable Long petId){
-        return repositorioPet.findById(petId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID não existe"));
+        // Pageable paginacao  = PageRequest.of(pagina, qtd);
+        Pageable paginacao = PageRequest.of(pagina, qtd);
+        Page<Pet> petsPage;
+
+        if (pet != null) {
+            petsPage = repositorioPet.findByNomeContaining(pet, paginacao);
+        } else {
+            petsPage = repositorioPet.findAll(paginacao);
+        }
+
+        return PetDto.convert(petsPage);
     }
+     
+    @GetMapping("/{petId}")
+    public ResponseEntity<PetDto> buscarPorId(@PathVariable Long petId){
+    Optional<Pet> pet = repositorioPet.findById(petId);
+        if (pet.isPresent()){
+            return ResponseEntity.ok(new PetDto(pet.get()));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+   
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -59,20 +83,14 @@ public class Controle {
     @PutMapping("/{petId}")
     public ResponseEntity<Pet> update(@PathVariable Long petId, @RequestBody Pet pet){
 
-        // if(!repositorioPet.existsById(petId)){
-        //     return ResponseEntity.notFound().build();
-        // }
-
-        // pet.setId(petId);
-        // pet = repositorioPet.save(pet);
-        // return ResponseEntity.ok(pet);
+      
 
         if(!repositorioPet.existsById(petId)){
             return ResponseEntity.notFound().build();
         }
     
         Pet existingPet = repositorioPet.findById(petId).get();
-        existingPet.setNome(pet.getNome()); // Supondo que você tenha métodos de setter para cada campo do Pet
+        existingPet.setNome(pet.getNome()); 
         existingPet.setApelido(pet.getApelido());
         existingPet.setRaca(pet.getRaca());
         existingPet.setEspecie(pet.getEspecie());
@@ -83,12 +101,6 @@ public class Controle {
         Pet updatedPet = repositorioPet.save(existingPet);
         return ResponseEntity.ok(updatedPet);
     }
-
-    
-    // @PutMapping
-    // public Pet editar(@RequestBody Pet pet){
-    //     return repositorioPet.save(pet);
-    // }
 
 
     @DeleteMapping("/{petId}")
