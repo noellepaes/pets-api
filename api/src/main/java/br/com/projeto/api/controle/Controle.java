@@ -1,6 +1,8 @@
 package br.com.projeto.api.controle;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+
 @RestController
 @RequestMapping("/pet")
 public class Controle {
@@ -31,14 +38,31 @@ public class Controle {
     private RepositorioPet repositorioPet;
 
 
+    // @GetMapping
+    // public List<PetDto> listaPets(){
+    // Iterable<Pet> petsIterable = repositorioPet.findAll();
+    // List<Pet> petsList = new ArrayList<>();
+    // petsIterable.forEach(petsList::add);
+    // return PetDto.convert(petsList);
+    // }
     @GetMapping
-    public List<PetDto> listaPets(){
-    Iterable<Pet> petsIterable = repositorioPet.findAll();
-    List<Pet> petsList = new ArrayList<>();
-    petsIterable.forEach(petsList::add);
-    return PetDto.convert(petsList);
-    }
+    public Page<PetDto> listaPets(@RequestParam(required = false) String pet,
+                                  @RequestParam int pagina, 
+                                  @RequestParam int qtd){
 
+        // Pageable paginacao  = PageRequest.of(pagina, qtd);
+        Pageable paginacao = PageRequest.of(pagina, qtd);
+        Page<Pet> petsPage;
+
+        if (pet != null) {
+            petsPage = repositorioPet.findByNomeContaining(pet, paginacao);
+        } else {
+            petsPage = repositorioPet.findAll(paginacao);
+        }
+
+        return PetDto.convert(petsPage);
+    }
+     
     @GetMapping("/{petId}")
     public ResponseEntity<PetDto> buscarPorId(@PathVariable Long petId){
     Optional<Pet> pet = repositorioPet.findById(petId);
